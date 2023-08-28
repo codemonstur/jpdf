@@ -4,6 +4,6 @@ version: 1.0.0
 enablePreview: false
 packaging: jar
 dependencies:
-  - repository: org.apache.pdfbox:pdfbox:3.0.0-RC1
+  - repository: org.apache.pdfbox:pdfbox:3.0.0
   - repository: junit:junit:4.13.2
     scope: test
