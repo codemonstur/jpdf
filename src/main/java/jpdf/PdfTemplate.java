@@ -12,7 +12,7 @@ import java.io.*;
 import static jpdf.LayoutPage.toLayoutPage;
 import static jpdf.Overlay.overlayPDF;
 
-public class PdfTemplate {
+public class PdfTemplate implements AutoCloseable {
 
     public static PdfTemplate newPdf(final String resource) throws IOException {
         return new PdfTemplate(loadPdfFromResource(resource));
@@ -24,9 +24,15 @@ public class PdfTemplate {
     }
 
     public PdfTemplate overlay(final String resource) throws IOException {
-        return overlay(loadPdfFromResource(resource));
+        // the loaded document is only needed for its first page: close it
+        // right away instead of leaking it for the lifetime of the JVM
+        try (final var overlayDocument = loadPdfFromResource(resource)) {
+            return overlay(overlayDocument.getPage(0));
+        }
     }
     public PdfTemplate overlay(final PDDocument overlay) throws IOException {
+        if (overlay.getNumberOfPages() < 1)
+            throw new IOException("Overlay document has no pages");
         return overlay(overlay.getPage(0));
     }
     public PdfTemplate overlay(final PDPage overlay) throws IOException {
@@ -39,6 +45,10 @@ public class PdfTemplate {
 
     public PDDocument toPdf() throws IOException {
         return template;
+    }
+    @Override
+    public void close() throws IOException {
+        template.close();
     }
     public BufferedImage toImage() throws IOException {
         return new PDFRenderer(template).renderImage(0);
@@ -59,7 +69,7 @@ public class PdfTemplate {
     private static PDDocument loadPdfFromResource(final String resource) throws IOException {
         try (final var in = PdfTemplate.class.getResourceAsStream(resource)) {
             if (in == null) throw new FileNotFoundException("Missing resource " + resource);
-            return Loader.loadPDF(in);
+            return Loader.loadPDF(in.readAllBytes());
         }
     }
 

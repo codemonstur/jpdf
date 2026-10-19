@@ -42,7 +42,9 @@ public enum Overlay {;
             final var contentArray = new OverlayCOSArray();
             contentArray.add(createStream("q\n"));
             contentArray.addAll(contents);
-            contentArray.add(createStream("Q\n"));
+            // leading whitespace is required: content streams are concatenated verbatim,
+            // so a template stream ending in a bare token would otherwise merge into "ETQ"
+            contentArray.add(createStream("\nQ\n"));
             contentArray.add(overlayPage(page, overlay));
 
             pageDictionary.setItem(CONTENTS, contentArray);
@@ -58,18 +60,32 @@ public enum Overlay {;
         final var xobjForm = new PDFormXObject(contentStream);
         xobjForm.setResources(new PDResources(layoutPage.overlayResources));
         xobjForm.setFormType(1);
-        xobjForm.setBBox(layoutPage.overlayMediaBox.createRetranslatedRectangle());
+        // the form has an identity matrix, so its BBox stays in the template's
+        // user space; retranslating it would clip content at the wrong offset
+        xobjForm.setBBox(layoutPage.overlayMediaBox);
         xobjForm.setMatrix(new AffineTransform());
         return page.getResources().add(xobjForm, "OL");
     }
 
     private static COSStream createOverlayStream(final PDPage page, final LayoutPage layoutPage, final COSName xObjectId)  throws IOException {
-        final PDRectangle pageMediaBox = page.getMediaBox();
-        final float hShift = (pageMediaBox.getWidth() - layoutPage.overlayMediaBox.getWidth()) / 2.0f;
-        final float vShift = (pageMediaBox.getHeight() - layoutPage.overlayMediaBox.getHeight()) / 2.0f;
+        final PDRectangle pageMediaBox = page.getCropBox();
+        // centering inside the visible box: the shift is the distance between the
+        // lower-left corners after centering the sizes
+        final float hShift = pageMediaBox.getLowerLeftX()
+                + (pageMediaBox.getWidth() - layoutPage.overlayMediaBox.getWidth()) / 2.0f
+                - layoutPage.overlayMediaBox.getLowerLeftX();
+        final float vShift = pageMediaBox.getLowerLeftY()
+                + (pageMediaBox.getHeight() - layoutPage.overlayMediaBox.getHeight()) / 2.0f
+                - layoutPage.overlayMediaBox.getLowerLeftY();
+        if (!isFinite(hShift) || !isFinite(vShift))
+            throw new IOException("Page or overlay has invalid (NaN/infinite) dimensions");
         final String overlayStream = "q\nq 1 0 0 1 " + float2String(hShift) + " " + float2String(vShift) +
                 " cm /" + xObjectId.getName() + " Do Q\nQ\n";
         return createStream(overlayStream);
+    }
+
+    private static boolean isFinite(final float value) {
+        return !Float.isNaN(value) && !Float.isInfinite(value);
     }
 
     private static String float2String(final float floatValue) {

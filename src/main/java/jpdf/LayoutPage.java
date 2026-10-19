@@ -61,6 +61,8 @@ public final class LayoutPage {
             }
         } else if (contents instanceof COSObject) {
             contentStreams.addAll(createContentStreamList(((COSObject) contents).getObject()));
+        } else if (contents == null) {
+            throw new IOException("Page has no /Contents entry");
         } else {
             throw new IOException("Contents are unknown type:" + contents.getClass().getName());
         }

@@ -54,7 +54,9 @@ public enum PdfTextUtils {;
         return wordwrap(line, LINE_LENGTH);
     }
     public static List<String> wordwrap(String text, final int lineLength) {
+        if (lineLength < 1) throw new IllegalArgumentException("lineLength must be at least 1");
         final ArrayList<String> ret = new ArrayList<>();
+        text = text.replace("\r\n", "\n").replace('\r', '\n');
 
         while (!text.isEmpty()) {
             final String line = extractFirstLine(text);
@@ -63,7 +65,7 @@ public enum PdfTextUtils {;
             ret.add(line.substring(0, offset));
             // TODO I tried to get the wordwrap code to respect double new lines, but I ran out of time to fix the algorithm
             // If you have the time try getting this code to not turn '\n\n' into '\n'
-            text = removeLeadingNewline(text.substring(offset));
+            text = removeLeadingSpace(removeLeadingNewline(text.substring(offset)));
         }
 
         return ret;
@@ -74,10 +76,18 @@ public enum PdfTextUtils {;
         return input.charAt(0) == '\n' ? input.substring(1) : input;
     }
 
+    private static String removeLeadingSpace(final String input) {
+        if (input == null || input.isEmpty()) return input;
+        int offset = 0;
+        while (offset < input.length() && input.charAt(offset) == ' ') offset++;
+        return input.substring(offset);
+    }
+
     private static int getNextLineBreak(final String line, final int lineLength) {
         if (line.length() > lineLength) {
             final int space = line.lastIndexOf(' ', lineLength);
-            return (space == -1) ? lineLength : space;
+            // space == 0 would break no progress: hard-break the over-long word instead
+            return (space <= 0) ? lineLength : space;
         }
         return line.length();
     }
