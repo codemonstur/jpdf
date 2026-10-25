@@ -41,6 +41,8 @@
         <maven.compiler.target>19</maven.compiler.target>
         <maven.compiler.release>19</maven.compiler.release>
 
+        <maven.version>[3.6.3,)</maven.version>
+
         <version.library.pdfbox>3.0.8</version.library.pdfbox>
         <version.library.junit>6.1.3</version.library.junit>
 
@@ -87,8 +89,8 @@
                         <configuration>
                             <rules>
                                 <requireMavenVersion>
-                                    <version>[3.6.3,)</version>
-                                    <message>This project requires Maven 3.6.3 or newer to build</message>
+                                    <version>${maven.version}</version>
+                                    <message>This project requires Maven ${maven.version} to build</message>
                                 </requireMavenVersion>
                             </rules>
                         </configuration>
