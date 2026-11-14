@@ -7,12 +7,24 @@ import java.util.Map;
 import static java.util.Map.entry;
 import static java.util.Map.ofEntries;
 
+/**
+ * The {@code PdfTextUtils} enum.
+ */
 public enum PdfTextUtils {;
 
+    /**
+     * Returns the result of {@code removeUnsupportedCharacters}.
+     *
+     * @param input the input
+     * @return the result
+     */
     public static String removeUnsupportedCharacters(final String input) {
         return input.replaceAll("[^A-Za-z0-9.,?! ]", "");
     }
 
+    /**
+     * The {@code TO_SAFE_FOR_FONT} constant.
+     */
     public static final Map<Character, String> TO_SAFE_FOR_FONT = ofEntries
         ( entry('ß', "b"), entry('à', "a"), entry('á', "a")
         , entry('â', "a"), entry('ã', "a"), entry('ä', "a")
@@ -37,6 +49,13 @@ public enum PdfTextUtils {;
         , entry('ș', "s"), entry('ț', "t"), entry('ё', "e")
         );
 
+    /**
+     * Returns the result of {@code transliterate}.
+     *
+     * @param text the text
+     * @param replacements the replacements
+     * @return the result
+     */
     public static String transliterate(final String text, final Map<Character, String> replacements) {
         final StringBuilder builder = new StringBuilder();
 
@@ -50,9 +69,22 @@ public enum PdfTextUtils {;
 
     private static final int LINE_LENGTH = 65;
 
+    /**
+     * Returns the result of {@code wordwrap}.
+     *
+     * @param line the line
+     * @return the result
+     */
     public static List<String> wordwrap(final String line) {
         return wordwrap(line, LINE_LENGTH);
     }
+    /**
+     * Returns the result of {@code wordwrap}.
+     *
+     * @param text the text
+     * @param lineLength the line length
+     * @return the result
+     */
     public static List<String> wordwrap(String text, final int lineLength) {
         if (lineLength < 1) throw new IllegalArgumentException("lineLength must be at least 1");
         final ArrayList<String> ret = new ArrayList<>();

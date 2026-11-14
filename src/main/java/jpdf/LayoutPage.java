@@ -14,9 +14,21 @@ import java.util.List;
 import static org.apache.pdfbox.cos.COSName.CONTENTS;
 import static org.apache.pdfbox.cos.COSName.FLATE_DECODE;
 
+/**
+ * The {@code LayoutPage} class.
+ */
 public final class LayoutPage {
+    /**
+     * The {@code overlayMediaBox} field.
+     */
     public final PDRectangle overlayMediaBox;
+    /**
+     * The {@code overlayContentStream} field.
+     */
     public final COSStream overlayContentStream;
+    /**
+     * The {@code overlayResources} field.
+     */
     public final COSDictionary overlayResources;
 
     private LayoutPage(final PDRectangle mediaBox, final COSStream contentStream, final COSDictionary resources) {
@@ -25,6 +37,13 @@ public final class LayoutPage {
         overlayResources = resources;
     }
 
+    /**
+     * Returns the result of {@code toLayoutPage}.
+     *
+     * @param page the page
+     * @return the result
+     * @throws IOException if the operation fails
+     */
     public static LayoutPage toLayoutPage(final PDPage page) throws IOException {
         final var contents = page.getCOSObject().getDictionaryObject(CONTENTS);
         var resources = page.getResources();

@@ -19,8 +19,14 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.pdfbox.cos.COSName.CONTENTS;
 import static org.apache.pdfbox.cos.COSName.FLATE_DECODE;
 
+/**
+ * The {@code Overlay} enum.
+ */
 public enum Overlay {;
 
+    /**
+     * The {@code OverlayCOSArray} class.
+     */
     public static final class OverlayCOSArray extends COSArray {
         void addAll(final COSBase contents) throws IOException {
             if (contents == null) return;
@@ -32,8 +38,21 @@ public enum Overlay {;
                 throw new IOException("Unknown content type:" + contents.getClass().getName());
             }
         }
+
+        /**
+         * Creates a new instance.
+         */
+        public OverlayCOSArray() {
+        }
     }
 
+    /**
+     * Performs the {@code overlayPDF} operation.
+     *
+     * @param template the template
+     * @param overlay the overlay
+     * @throws IOException if the operation fails
+     */
     public static void overlayPDF(final PDDocument template, final LayoutPage overlay) throws IOException {
         for (final var page : template.getPages()) {
             final var pageDictionary = page.getCOSObject();
@@ -111,12 +130,34 @@ public enum Overlay {;
         return stream;
     }
 
+    /**
+     * Returns the result of {@code centerXofString}.
+     *
+     * @param text the text
+     * @param font the font
+     * @param fontSize the font size
+     * @param pageWidth the page width
+     * @return the result
+     * @throws IOException if the operation fails
+     */
     public static float centerXofString(final String text, final PDFont font, final int fontSize
             , final float pageWidth) throws IOException {
         final float textWidth = font.getStringWidth(text) / 1000 * fontSize;
         return (pageWidth - textWidth) / 2;
     }
 
+    /**
+     * Performs the {@code addTextBlock} operation.
+     *
+     * @param contentStream the content stream
+     * @param font the font
+     * @param color the color
+     * @param fontSize the font size
+     * @param offsetX the offset x
+     * @param offsetY the offset y
+     * @param text the text
+     * @throws IOException if the operation fails
+     */
     public static void addTextBlock(final PDPageContentStream contentStream, final PDFont font, final Color color
             , final int fontSize, final float offsetX, final float offsetY, final String text) throws IOException {
         contentStream.beginText();
