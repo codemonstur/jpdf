@@ -1,0 +1,8 @@
+1.1.0
+
+PdfTemplate now implements AutoCloseable
+Use the page crop box when centering overlays and validate overlay dimensions
+Fixed content stream separators for overlay and layout pages
+Report pages without a /Contents entry
+Normalize line endings and leading whitespace when formatting text
+Validate line length in PdfTextUtils
